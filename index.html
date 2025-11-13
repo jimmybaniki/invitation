@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation ISIPA - Confirmation de présence</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas pour la génération d'image de la carte -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Configuration de Tailwind pour la police Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Définir Inter comme police par défaut */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Style personnalisé pour l'effet du bouton */
+        .btn-primary {
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5), 0 4px 6px -2px rgba(59, 130, 246, 0.25);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* Style spécifique pour la carte d'invitation */
+        .invitation-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2.5rem;
+            /* Le padding doit être solide pour html2canvas */
+            transition: transform 0.6s;
+            perspective: 1000px;
+        }
+        
+        /* S'assurer que le bouton de la carte est bien visible */
+        #invitationCardContainer button {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-6">
+
+    <div class="w-full max-w-xl bg-white p-0 rounded-2xl shadow-2xl border-t-8 border-blue-600 overflow-hidden">
+        
+        <!-- Conteneur Principal du Formulaire (Initialement visible) -->
+        <div id="formContainer" class="p-6 sm:p-10">
+            <header class="mb-8 text-center">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
+                    Invitation à l'activité ISIPA
+                </h1>
+                <p class="text-lg text-blue-600 font-semibold mb-4">
+                    Confirmez votre présence !
+                </p>
+                
+                <!-- Détails de l'événement -->
+                <div class="bg-blue-50 p-4 rounded-xl text-left border-l-4 border-blue-400 mb-8">
+                    <p class="font-bold text-gray-700 mb-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                        </svg>
+                        Date : <span class="ml-1 font-extrabold text-blue-700">Jeudi 20 Novembre</span>
+                    </p>
+                    <p class="font-bold text-gray-700 flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-1 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        Lieu : <span class="ml-1 font-semibold">Centre de l'Institut de l'ISIPA</span>
+                    </p>
+                    <p class="text-sm text-gray-600 mt-1 pl-7">
+                        Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or.
+                    </p>
+                </div>
+            </header>
+
+            <!-- Image du Centre (Placeholder) -->
+            <div class="mb-8 text-center">
+                <img src="https://placehold.co/500x250/3b82f6/ffffff?text=Photo+du+Centre+ISIPA" 
+                    alt="Image du Centre ISIPA" 
+                    class="w-full max-w-sm mx-auto rounded-xl shadow-lg object-cover border-4 border-blue-200">
+            </div>
+
+            <!-- Formulaire de confirmation -->
+            <form id="invitationForm" class="space-y-6">
+
+                <!-- Nom et Prénom -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Nom et Prénom</label>
+                    <input type="text" id="fullName" name="fullName" required 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                        placeholder="Ex: Jean-Paul Mvumbi">
+                </div>
+
+                <!-- Adresse E-mail -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Adresse E-mail</label>
+                    <input type="email" id="email" name="email" required 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                        placeholder="Ex: votre.email@exemple.com">
+                </div>
+
+                <!-- Numéro de Téléphone -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Numéro de Téléphone</label>
+                    <input type="tel" id="phone" name="phone" required 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                        placeholder="Ex: +243 978 415 814">
+                </div>
+
+                <!-- Nombre d'invités (Optionnel) -->
+                <div>
+                    <label for="guests" class="block text-sm font-medium text-gray-700 mb-1">Nombre d'invités (en plus de vous)</label>
+                    <input type="number" id="guests" name="guests" value="0" min="0" 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+
+                <!-- Message de statut (pour les erreurs ou les messages intermédiaires) -->
+                <div id="statusMessage" class="hidden p-3 rounded-lg text-center text-sm font-medium"></div>
+
+                <!-- Bouton de soumission -->
+                <button type="submit" id="submitButton"
+                        class="btn-primary w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-wider">
+                    Confirmer ma présence
+                </button>
+
+            </form>
+        </div>
+        
+        <!-- Conteneur de la Carte d'Invitation (Initiallement caché) -->
+        <div id="invitationCardContainer" class="hidden p-0">
+            <div id="invitationCard" class="invitation-card rounded-2xl shadow-xl">
+                <div class="text-center mb-8">
+                    <p class="text-sm font-light opacity-80 mb-1">Invitation Officielle</p>
+                    <h2 class="text-4xl font-black tracking-wide uppercase border-b-2 border-white/50 pb-2 inline-block">ISIPA</h2>
+                    <p class="text-xl mt-2 font-medium">Confirmation de présence</p>
+                </div>
+
+                <div class="text-center mb-10">
+                    <p class="text-lg font-light mb-1">Cher(ère) invité(e) :</p>
+                    <p id="guestNameDisplay" class="text-3xl font-extrabold tracking-tight mb-4"></p>
+                    <p class="text-sm font-light">Votre inscription a été enregistrée.</p>
+                </div>
+                
+                <div class="bg-white/10 rounded-xl p-4 border border-white/30 text-center">
+                    <p class="font-semibold text-sm mb-1 opacity-70">Événement & Lieu</p>
+                    <p class="text-xl font-bold mb-3">Activité spéciale ISIPA</p>
+                    <p class="text-lg font-bold mb-1">Jeudi 20 Novembre</p>
+                    <p class="text-sm font-light">Centre de l'Institut de l'ISIPA</p>
+                    <p class="text-xs opacity-70 mt-1">Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or.</p>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-xs opacity-70">RÉFÉRENCE D'INSCRIPTION :</p>
+                    <p id="guestRefDisplay" class="text-sm font-mono font-bold mt-1 tracking-widest"></p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action après confirmation (en dehors de la carte pour le téléchargement) -->
+            <div class="p-6 sm:p-10 pt-4 flex flex-col sm:flex-row gap-3">
+                <button id="downloadButton" 
+                        class="w-full py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 transition duration-150 ease-in-out flex items-center justify-center btn-primary"
+                        onclick="window.downloadCard()">
+                    <!-- Download Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.707-8.707a1 1 0 001.414 0L10 9.586l1.879-1.879a1 1 0 111.414 1.414l-2.5 2.5a1 1 0 01-1.414 0l-2.5-2.5a1 1 0 010-1.414zM10 2a1 1 0 011 1v8a1 1 0 11-2 0V3a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Télécharger la Carte (PNG)
+                </button>
+
+                <button id="whatsappButton" 
+                        class="w-full py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition duration-150 ease-in-out flex items-center justify-center btn-primary"
+                        onclick="window.shareOnWhatsApp()">
+                    <!-- Phone Icon (for contact/proof) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-3.66-3.66A19.79 19.79 0 0 1 2.08 6.18C2.08 5.04 3.09 4 4.12 4h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 12a14.39 14.39 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Présenter l'Inscription (WhatsApp)
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Firebase et JavaScript pour la gestion du formulaire -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, addDoc, collection, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Variables globales fournies par l'environnement
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Données d'état globales pour les fonctions de la carte
+        let currentDocId = null;
+        let currentGuestName = null;
+        const whatsappContactNumber = "243978415814"; // Le numéro de contact WhatsApp sans le '+'
+
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const formContainer = document.getElementById('formContainer');
+        const invitationCardContainer = document.getElementById('invitationCardContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        const submitButton = document.getElementById('submitButton');
+
+        // 1. Initialisation de Firebase et Authentification
+        async function initializeFirebase() {
+            if (!firebaseConfig) {
+                console.error("Firebase config is missing. Cannot initialize Firestore.");
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                setLogLevel('debug'); // Afficher les logs Firestore
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Écouter le changement d'état d'authentification
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        console.log("Firebase Auth Ready. User ID:", userId);
+                    } else {
+                        isAuthReady = false;
+                        console.log("User not signed in. Waiting for sign-in.");
+                    }
+                });
+
+                // Tenter de se connecter
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    // Fallback en cas d'absence de token personnalisé (connexion anonyme)
+                    await signInAnonymously(auth);
+                }
+
+            } catch (error) {
+                console.error("Firebase Initialization or Sign-in Error:", error.message);
+                statusMessage.textContent = `Erreur de connexion : ${error.message}. Veuillez réessayer.`;
+                statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700';
+                statusMessage.classList.remove('hidden');
+            }
+        }
+        
+        // 2. Fonction pour sauvegarder les données dans Firestore (Collection Publique)
+        async function saveInvitation(data) {
+            if (!isAuthReady || !db || !userId) {
+                // Tente de s'assurer que l'authentification est terminée
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (isAuthReady) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+                if (!isAuthReady) {
+                    throw new Error("Firestore n'est pas prêt. Veuillez rafraîchir la page.");
+                }
+            }
+            
+            // Chemin de la collection publique pour les invitations
+            const collectionPath = `artifacts/${appId}/public/data/invitations`;
+            const invitationsRef = collection(db, collectionPath);
+
+            const record = {
+                ...data,
+                userId: userId,
+                timestamp: new Date().toISOString(),
+                phone: String(data.phone), 
+            };
+
+            try {
+                const docRef = await addDoc(invitationsRef, record);
+                return docRef.id;
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                throw new Error("Erreur lors de l'enregistrement de votre confirmation. Réessayez.");
+            }
+        }
+
+        // 3. Fonction pour afficher la carte d'invitation
+        function displayInvitationCard(formData, docId) {
+            // Mettre à jour l'état global
+            currentDocId = docId;
+            currentGuestName = formData.fullName;
+
+            // Cacher le formulaire
+            formContainer.classList.add('hidden');
+            
+            // Afficher le conteneur de la carte
+            invitationCardContainer.classList.remove('hidden');
+
+            // Remplir les détails sur la carte
+            document.getElementById('guestNameDisplay').textContent = formData.fullName;
+            document.getElementById('guestRefDisplay').textContent = docId;
+
+            // Ajouter une petite animation pour l'effet "carte distribuée"
+            const card = document.getElementById('invitationCard');
+            card.style.transform = 'rotateY(10deg)';
+            setTimeout(() => {
+                card.style.transform = 'rotateY(0deg)';
+            }, 100);
+        }
+
+        // --- Fonctions globales pour les boutons de la carte ---
+
+        // Télécharge la carte d'invitation sous forme d'image PNG
+        window.downloadCard = function() {
+            if (!currentDocId) {
+                console.error("Pas de référence pour le téléchargement.");
+                return;
+            }
+            const cardElement = document.getElementById('invitationCard');
+            
+            // Utilise html2canvas pour capturer l'élément
+            html2canvas(cardElement, {
+                allowTaint: true,
+                useCORS: true,
+                backgroundColor: null 
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Invitation_ISIPA_Ref_${currentDocId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch(err => {
+                 console.error("Erreur lors du téléchargement de la carte:", err);
+            });
+        };
+
+        // Ouvre WhatsApp avec un message pré-rempli pour la preuve d'inscription
+        window.shareOnWhatsApp = function() {
+            if (!currentGuestName || !currentDocId) {
+                // Utiliser le message d'état pour les erreurs UI
+                statusMessage.textContent = "Erreur: Les informations d'inscription sont manquantes pour le partage.";
+                statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700';
+                statusMessage.classList.remove('hidden');
+                return;
+            }
+
+            const message = encodeURIComponent(
+                `Bonjour, je viens de confirmer ma présence à l'activité ISIPA du Jeudi 20 Novembre.\n\nMon nom est : ${currentGuestName}\nMa Réf. d'inscription est : ${currentDocId}\n\nJ'utilise ce message comme preuve de mon enregistrement.`
+            );
+            
+            // Utilise le code pays (243) et le numéro sans le '+'
+            const whatsappUrl = `https://wa.me/${whatsappContactNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        };
+
+        // --- Gestion de la soumission du formulaire ---
+        document.getElementById('invitationForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = {
+                fullName: form.fullName.value.trim(),
+                email: form.email.value.trim(),
+                // On s'assure que le numéro contient le code pays si l'utilisateur l'a mis, sinon il sera juste enregistré tel quel.
+                phone: form.phone.value.trim(), 
+                guests: parseInt(form.guests.value, 10),
+                event: "Activité ISIPA - Jeudi 20 Novembre",
+                locationDetails: "Centre de l'Institut de l'ISIPA (Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or)"
+            };
+
+            // Préparation de l'interface utilisateur pour la soumission
+            submitButton.disabled = true;
+            submitButton.textContent = "Confirmation en cours...";
+            statusMessage.classList.add('hidden');
+
+            try {
+                // Sauvegarde des données dans Firestore. L'attente de l'Auth est gérée dans saveInvitation.
+                const docId = await saveInvitation(formData);
+
+                // Affichage de la carte d'invitation
+                displayInvitationCard(formData, docId);
+
+            } catch (error) {
+                console.error("Submission error:", error);
+                // Afficher l'erreur à l'utilisateur
+                statusMessage.textContent = error.message || "Une erreur inconnue est survenue lors de l'enregistrement.";
+                statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700';
+                statusMessage.classList.remove('hidden');
+                
+                // Rétablir le bouton
+                submitButton.disabled = false;
+                submitButton.textContent = "Confirmer ma présence";
+            }
+        });
+
+        // Démarrer l'initialisation de Firebase
+        initializeFirebase();
+    </script>
+</body>
+</html>

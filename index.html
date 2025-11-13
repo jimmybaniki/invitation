@@ -205,6 +205,10 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
+        // --- NOUVEAU: Lien Formspree pour la copie des e-mails ---
+        const formspreeUrl = "https://formspree.io/f/mvgwybbn"; 
+        // --------------------------------------------------------
+
         // Données d'état globales pour les fonctions de la carte
         let currentDocId = null;
         let currentGuestName = null;
@@ -310,7 +314,47 @@
             }
         }
 
-        // 3. Fonction pour afficher la carte d'invitation (inchangée)
+        // 3. Fonction pour envoyer une copie des données par e-mail via Formspree (non bloquant)
+        async function sendEmailCopy(data, docId) {
+            if (isMockMode || !formspreeUrl) {
+                console.log("MOCK MODE ou Formspree URL manquant: Email copy skipped.");
+                return;
+            }
+
+            // Adaptez les clés pour une meilleure lisibilité dans l'e-mail reçu
+            const payload = {
+                "Nom_et_Prénom": data.fullName,
+                "Email_Invité": data.email,
+                "Téléphone": data.phone,
+                "Nombre_d_invités_en_plus": data.guests,
+                "Référence_Inscription_Firestore": docId,
+                "Événement_Confirmé": data.event,
+                "Détails_du_lieu": data.locationDetails
+            };
+
+            try {
+                const response = await fetch(formspreeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    // Log l'erreur mais ne la lance pas (l'envoi de l'e-mail est secondaire)
+                    const errorData = await response.json().catch(() => ({ message: "Erreur de décodage Formspree" }));
+                    console.warn(`Formspree error (${response.status}):`, errorData);
+                } else {
+                    console.log("Email copy successfully sent to Formspree endpoint.");
+                }
+            } catch (error) {
+                console.warn("Network error during Formspree submission:", error);
+            }
+        }
+
+        // 4. Fonction pour afficher la carte d'invitation (inchangée)
         function displayInvitationCard(formData, docId) {
             // Mettre à jour l'état global
             currentDocId = docId;
@@ -400,10 +444,14 @@
             statusMessage.classList.add('hidden');
 
             try {
-                // Sauvegarde des données (ou simulation si en Mock Mode)
+                // 1. Sauvegarde des données dans Firestore (Étape principale)
                 const docId = await saveInvitation(formData);
 
-                // Affichage de la carte d'invitation
+                // 2. Envoi de la copie par e-mail via Formspree (Étape secondaire, non bloquante)
+                // On ne met pas 'await' pour ne pas ralentir l'affichage de la carte d'invitation
+                sendEmailCopy(formData, docId);
+
+                // 3. Affichage de la carte d'invitation
                 displayInvitationCard(formData, docId);
 
             } catch (error) {

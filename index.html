@@ -72,7 +72,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                         </svg>
-                        Date : <span class="ml-1 font-extrabold text-blue-700">Jeudi 20 Novembre</span>
+                        Date : <span class="ml-1 font-extrabold text-blue-700">Jeudi 20 Novembre à 14h00</span>
                     </p>
                     <p class="font-bold text-gray-700 flex items-start">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-1 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -86,11 +86,13 @@
                 </div>
             </header>
 
-            <!-- Image du Centre (Placeholder) -->
+            <!-- Image du Centre -->
             <div class="mb-8 text-center">
-                <img src="https://placehold.co/500x250/3b82f6/ffffff?text=Photo+du+Centre+ISIPA" 
+                <!-- Image mise à jour : centre_isipa.jpg -->
+                <img src="centre_isipa.jpg" 
                     alt="Image du Centre ISIPA" 
-                    class="w-full max-w-sm mx-auto rounded-xl shadow-lg object-cover border-4 border-blue-200">
+                    class="w-full max-w-sm mx-auto rounded-xl shadow-lg object-cover border-4 border-blue-200"
+                    onerror="this.onerror=null; this.src='https://placehold.co/500x250/3b82f6/ffffff?text=Photo+du+Centre+ISIPA'">
             </div>
 
             <!-- Formulaire de confirmation -->
@@ -157,7 +159,8 @@
                 <div class="bg-white/10 rounded-xl p-4 border border-white/30 text-center">
                     <p class="font-semibold text-sm mb-1 opacity-70">Événement & Lieu</p>
                     <p class="text-xl font-bold mb-3">Activité spéciale ISIPA</p>
-                    <p class="text-lg font-bold mb-1">Jeudi 20 Novembre</p>
+                    <!-- Heure mise à jour sur la carte -->
+                    <p class="text-lg font-bold mb-1">Jeudi 20 Novembre à 14h00</p>
                     <p class="text-sm font-light">Centre de l'Institut de l'ISIPA</p>
                     <p class="text-xs opacity-70 mt-1">Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or.</p>
                 </div>
@@ -192,6 +195,7 @@
 
     <!-- Script Firebase et JavaScript pour la gestion du formulaire -->
     <script type="module">
+        // Importations nécessaires (gardées pour le mode réel)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, addDoc, collection, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -210,6 +214,7 @@
         let auth;
         let userId = null;
         let isAuthReady = false;
+        let isMockMode = false; // Nouvelle variable de mode de simulation
 
         const formContainer = document.getElementById('formContainer');
         const invitationCardContainer = document.getElementById('invitationCardContainer');
@@ -219,8 +224,11 @@
         // 1. Initialisation de Firebase et Authentification
         async function initializeFirebase() {
             if (!firebaseConfig) {
-                console.error("Firebase config is missing. Cannot initialize Firestore.");
-                return;
+                console.warn("ATTENTION: Configuration Firebase manquante. Bascule en Mode Simulation (Mock Mode) pour le test local.");
+                isMockMode = true;
+                isAuthReady = true; // On simule que l'authentification est prête
+                userId = 'MOCK_USER_LOCAL';
+                return; // Arrête l'initialisation de Firebase
             }
 
             try {
@@ -259,6 +267,14 @@
         
         // 2. Fonction pour sauvegarder les données dans Firestore (Collection Publique)
         async function saveInvitation(data) {
+            if (isMockMode) {
+                // En mode local, on simule une sauvegarde réussie
+                console.log("MOCK MODE: Data saved to console instead of Firestore.", data);
+                // Génère une fausse référence unique pour le test
+                return 'MOCK-' + Math.random().toString(36).substring(2, 9).toUpperCase(); 
+            }
+            
+            // Logique de sauvegarde en mode réel (inchangée)
             if (!isAuthReady || !db || !userId) {
                 // Tente de s'assurer que l'authentification est terminée
                 await new Promise(resolve => {
@@ -294,7 +310,7 @@
             }
         }
 
-        // 3. Fonction pour afficher la carte d'invitation
+        // 3. Fonction pour afficher la carte d'invitation (inchangée)
         function displayInvitationCard(formData, docId) {
             // Mettre à jour l'état global
             currentDocId = docId;
@@ -318,7 +334,7 @@
             }, 100);
         }
 
-        // --- Fonctions globales pour les boutons de la carte ---
+        // --- Fonctions globales pour les boutons de la carte (inchangées) ---
 
         // Télécharge la carte d'invitation sous forme d'image PNG
         window.downloadCard = function() {
@@ -356,7 +372,7 @@
             }
 
             const message = encodeURIComponent(
-                `Bonjour, je viens de confirmer ma présence à l'activité ISIPA du Jeudi 20 Novembre.\n\nMon nom est : ${currentGuestName}\nMa Réf. d'inscription est : ${currentDocId}\n\nJ'utilise ce message comme preuve de mon enregistrement.`
+                `Bonjour, je viens de confirmer ma présence à l'activité ISIPA du Jeudi 20 Novembre à 14h00.\n\nMon nom est : ${currentGuestName}\nMa Réf. d'inscription est : ${currentDocId}\n\nJ'utilise ce message comme preuve de mon enregistrement.`
             );
             
             // Utilise le code pays (243) et le numéro sans le '+'
@@ -372,10 +388,9 @@
             const formData = {
                 fullName: form.fullName.value.trim(),
                 email: form.email.value.trim(),
-                // On s'assure que le numéro contient le code pays si l'utilisateur l'a mis, sinon il sera juste enregistré tel quel.
                 phone: form.phone.value.trim(), 
                 guests: parseInt(form.guests.value, 10),
-                event: "Activité ISIPA - Jeudi 20 Novembre",
+                event: "Activité ISIPA - Jeudi 20 Novembre à 14h00",
                 locationDetails: "Centre de l'Institut de l'ISIPA (Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or)"
             };
 
@@ -385,7 +400,7 @@
             statusMessage.classList.add('hidden');
 
             try {
-                // Sauvegarde des données dans Firestore. L'attente de l'Auth est gérée dans saveInvitation.
+                // Sauvegarde des données (ou simulation si en Mock Mode)
                 const docId = await saveInvitation(formData);
 
                 // Affichage de la carte d'invitation
@@ -404,7 +419,7 @@
             }
         });
 
-        // Démarrer l'initialisation de Firebase
+        // Démarrer l'initialisation de Firebase (ou le Mock Mode)
         initializeFirebase();
     </script>
 </body>

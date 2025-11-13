@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas pour la génération d'image de la carte -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF pour la génération de PDF (NOUVEAU) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Configuration de Tailwind pour la police Inter -->
     <script>
@@ -50,6 +52,11 @@
         #invitationCardContainer button {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        
+        /* S'assurer que le lien Maps sur la carte est cliquable */
+        #invitationCard a {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-6">
@@ -70,7 +77,7 @@
                 <div class="bg-blue-50 p-4 rounded-xl text-left border-l-4 border-blue-400 mb-8">
                     <p class="font-bold text-gray-700 mb-1 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                         </svg>
                         Date : <span class="ml-1 font-extrabold text-blue-700">Jeudi 20 Novembre à 14h00</span>
                     </p>
@@ -82,6 +89,15 @@
                     </p>
                     <p class="text-sm text-gray-600 mt-1 pl-7">
                         Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or.
+                    </p>
+                    <!-- Lien Google Maps moins prominent sur le formulaire initial -->
+                    <p class="text-sm mt-2 pl-7">
+                        <a href="https://maps.app.goo.gl/ZqfRs1JcCaHWJMDy6" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold underline flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2a1 1 0 00-.005.000z" clip-rule="evenodd" />
+                            </svg>
+                            Voir l'emplacement sur Google Maps
+                        </a>
                     </p>
                 </div>
             </header>
@@ -122,7 +138,7 @@
                         placeholder="Ex: +243 978 415 814">
                 </div>
 
-                <!-- MODIFIÉ: Pieu ou Paroisse ou Université (Champ optionnel) -->
+                <!-- Pieu ou Paroisse ou Université (Champ optionnel) -->
                 <div>
                     <label for="universityOrPlace" class="block text-sm font-medium text-gray-700 mb-1">Pieu ou Paroisse ou Université (Optionnel)</label>
                     <input type="text" id="universityOrPlace" name="universityOrPlace"
@@ -165,13 +181,24 @@
                     <p class="text-sm font-light">Votre inscription a été enregistrée.</p>
                 </div>
                 
-                <div class="bg-white/10 rounded-xl p-4 border border-white/30 text-center">
+                <div class="bg-white/10 rounded-xl p-4 border border-white/30 text-center flex flex-col items-center">
                     <p class="font-semibold text-sm mb-1 opacity-70">Événement & Lieu</p>
                     <p class="text-xl font-bold mb-3">Activité spéciale ISIPA</p>
                     <!-- Heure mise à jour sur la carte -->
                     <p class="text-lg font-bold mb-1">Jeudi 20 Novembre à 14h00</p>
                     <p class="text-sm font-light">Centre de l'Institut de l'ISIPA</p>
                     <p class="text-xs opacity-70 mt-1">Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or.</p>
+                    
+                    <!-- Lien Maps cliquable sur la carte -->
+                    <a href="https://maps.app.goo.gl/ZqfRs1JcCaHWJMDy6" target="_blank" 
+                       class="mt-4 inline-flex items-center justify-center bg-white text-blue-800 font-bold py-2 px-4 rounded-full text-sm shadow-lg hover:bg-gray-100 transition duration-150 ease-in-out"
+                       id="mapLinkOnCard">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <!-- Ce texte doit être visible dans le PDF, mais masqué dans le PNG -->
+                        <span id="mapLinkText">VOIR SUR LA CARTE</span>
+                    </a>
                 </div>
                 
                 <div class="text-center mt-6">
@@ -182,14 +209,26 @@
 
             <!-- Boutons d'action après confirmation (en dehors de la carte pour le téléchargement) -->
             <div class="p-6 sm:p-10 pt-4 flex flex-col sm:flex-row gap-3">
-                <button id="downloadButton" 
+                
+                <!-- PDF Download Button (NOUVEAU - Principal) -->
+                <button id="downloadPdfButton" 
                         class="w-full py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 transition duration-150 ease-in-out flex items-center justify-center btn-primary"
-                        onclick="window.downloadCard()">
+                        onclick="window.downloadCardPDF()">
+                    <!-- Download Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.707-8.707a1 1 0 001.414 0L10 9.586l1.879-1.879a1 1 0 111.414 1.414l-2.5 2.5a1 1 0 01-1.414 0l-2.5-2.5a1 1 0 010-1.414zM10 2a1 1 0 011 1v8a1 1 0 11-2 0V3a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Télécharger la Carte (PDF)
+                </button>
+                
+                <!-- PNG Download Button (Maintenant Secondaire - Indigo) -->
+                <button id="downloadPngButton" 
+                        class="w-full py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 ease-in-out flex items-center justify-center btn-primary"
+                        onclick="window.downloadCardPNG()">
                     <!-- Download Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.707-8.707a1 1 0 001.414 0L10 9.586l1.879-1.879a1 1 0 111.414 1.414l-2.5 2.5a1 1 0 01-1.414 0l-2.5-2.5a1 1 0 010-1.414zM10 2a1 1 0 011 1v8a1 1 0 11-2 0V3a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                     Télécharger la Carte (PNG)
                 </button>
 
+                <!-- WhatsApp Share Button -->
                 <button id="whatsappButton" 
                         class="w-full py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition duration-150 ease-in-out flex items-center justify-center btn-primary"
                         onclick="window.shareOnWhatsApp()">
@@ -334,7 +373,6 @@
             const payload = {
                 "Nom_et_Prénom": data.fullName,
                 "Email_Invité": data.email || "Non_renseigné_par_l'utilisateur", // Gérer le champ optionnel
-                // CLÉ MODIFIÉE: Reflète "Pieu ou Paroisse ou Université"
                 "Pieu_ou_Paroisse_ou_Université": data.universityOrPlace || "Non renseigné", 
                 "Téléphone": data.phone,
                 "Nombre_d_invités_en_plus": data.guests,
@@ -387,36 +425,137 @@
             setTimeout(() => {
                 card.style.transform = 'rotateY(0deg)';
             }, 100);
+            
+            // S'assurer que le message de statut est réinitialisé lors de l'affichage de la carte
+            statusMessage.classList.add('hidden');
         }
 
-        // --- Fonctions globales pour les boutons de la carte (inchangées) ---
+        // --- Fonctions globales pour les boutons de la carte ---
 
-        // Télécharge la carte d'invitation sous forme d'image PNG
-        window.downloadCard = function() {
+        // Télécharge la carte d'invitation sous forme d'image PNG (LOGIQUE DE MASQUAGE MAINTENUE)
+        window.downloadCardPNG = function() {
             if (!currentDocId) {
                 console.error("Pas de référence pour le téléchargement.");
                 return;
             }
             const cardElement = document.getElementById('invitationCard');
+            const mapLinkText = document.getElementById('mapLinkText');
+
+            // 1. Masquer le texte du lien TEMPORAIREMENT (pour le PNG)
+            mapLinkText.style.visibility = 'hidden'; 
             
-            // Utilise html2canvas pour capturer l'élément
+            // 2. Utilise html2canvas pour capturer l'élément
             html2canvas(cardElement, {
                 allowTaint: true,
                 useCORS: true,
                 backgroundColor: null 
             }).then(canvas => {
+                // 3. Restaurer la visibilité IMMÉDIATEMENT
+                mapLinkText.style.visibility = 'visible'; 
+                
                 const link = document.createElement('a');
                 link.download = `Invitation_ISIPA_Ref_${currentDocId}.png`;
                 link.href = canvas.toDataURL('image/png');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+
+                // Afficher un message après le téléchargement PNG
+                statusMessage.textContent = "Téléchargement PNG réussi ! Note: Le lien Google Maps n'est pas cliquable dans l'image (format PNG).";
+                statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-yellow-100 text-yellow-800';
+                statusMessage.classList.remove('hidden');
+                
             }).catch(err => {
-                 console.error("Erreur lors du téléchargement de la carte:", err);
+                 // 3. Restaurer la visibilité même en cas d'erreur
+                 mapLinkText.style.visibility = 'visible'; 
+                 console.error("Erreur lors du téléchargement de la carte PNG:", err);
+                 statusMessage.textContent = "Erreur lors du téléchargement PNG. Veuillez réessayer.";
+                 statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700';
+                 statusMessage.classList.remove('hidden');
             });
         };
 
-        // Ouvre WhatsApp avec un message pré-rempli pour la preuve d'inscription
+        // Télécharge la carte d'invitation sous forme de document PDF (LOGIQUE DE MASQUAGE RETIRÉE)
+        window.downloadCardPDF = function() {
+            if (!currentDocId) {
+                console.error("Pas de référence pour le téléchargement PDF.");
+                return;
+            }
+
+            const jsPDF = window.jspdf.jsPDF;
+            const cardElement = document.getElementById('invitationCard');
+            const mapLinkElement = document.getElementById('mapLinkOnCard');
+            // Le mapLinkText est récupéré mais n'est PAS caché
+            const mapLinkText = document.getElementById('mapLinkText');
+            const mapLinkURL = mapLinkElement.href; 
+            
+            // 1. Récupérer les coordonnées du lien (avec le texte visible)
+            const cardRect = cardElement.getBoundingClientRect();
+            const linkRect = mapLinkElement.getBoundingClientRect();
+
+            // Coordonnées du lien relatives au coin supérieur gauche de la carte (en pixels)
+            const linkX = linkRect.left - cardRect.left;
+            const linkY = linkRect.top - cardRect.top;
+            const linkWidth = linkRect.width;
+            const linkHeight = linkRect.height;
+            
+            // 2. Capture l'élément comme une image (canvas) (PAS de masquage)
+            html2canvas(cardElement, {
+                allowTaint: true,
+                useCORS: true,
+                scale: 2, // Utilise une échelle plus élevée pour une meilleure résolution
+                backgroundColor: null 
+            }).then(canvas => {
+                // 3. Pas de restauration (le texte n'a jamais été caché)
+
+                const imgData = canvas.toDataURL('image/png');
+                const doc = new jsPDF('p', 'mm', 'a4'); 
+
+                // Calcule les dimensions pour que l'image s'insère dans le PDF
+                const imgWidth = 180; // Largeur de l'image (mm)
+                const imgHeight = (canvas.height * imgWidth) / canvas.width; // Hauteur de l'image (mm)
+                const xOffset = 15; // Marge gauche/droite (mm)
+                const yOffset = (doc.internal.pageSize.getHeight() - imgHeight) / 2; // Centrage vertical (mm)
+
+                // 4. Ajoute l'image au PDF
+                doc.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+                
+                // 5. Calcule et ajoute le lien cliquable
+                const scaleFactor = imgWidth / cardRect.width; 
+
+                const pdfLinkX = xOffset + (linkX * scaleFactor);
+                const pdfLinkY = yOffset + (linkY * scaleFactor);
+                const pdfLinkWidth = linkWidth * scaleFactor;
+                const pdfLinkHeight = linkHeight * scaleFactor;
+
+                // Ajout du lien cliquable sur la zone du bouton
+                doc.link(
+                    pdfLinkX, 
+                    pdfLinkY, 
+                    pdfLinkWidth, 
+                    pdfLinkHeight, 
+                    { url: mapLinkURL } // L'URL de Google Maps
+                );
+                
+                // 6. Sauvegarde le PDF
+                doc.save(`Invitation_ISIPA_Ref_${currentDocId}.pdf`);
+
+                // Afficher un message après le téléchargement PDF
+                statusMessage.textContent = "Téléchargement PDF réussi ! Le lien Google Maps est désormais cliquable dans le document.";
+                statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-blue-100 text-blue-800';
+                statusMessage.classList.remove('hidden');
+
+            }).catch(err => {
+                 // Pas de restauration de visibilité nécessaire
+                 console.error("Erreur lors du téléchargement de la carte PDF:", err);
+                 statusMessage.textContent = "Erreur lors du téléchargement PDF. Veuillez réessayer.";
+                 statusMessage.className = 'p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700';
+                 statusMessage.classList.remove('hidden');
+            });
+        };
+
+
+        // Ouvre WhatsApp avec un message pré-rempli pour la preuve d'inscription (inchangée)
         window.shareOnWhatsApp = function() {
             if (!currentGuestName || !currentDocId) {
                 // Utiliser le message d'état pour les erreurs UI
@@ -426,8 +565,10 @@
                 return;
             }
 
+            // Le lien Maps est inclus ici aussi pour la commodité du partage
+            const mapLink = "https://maps.app.goo.gl/ZqfRs1JcCaHWJMDy6";
             const message = encodeURIComponent(
-                `Bonjour, je viens de confirmer ma présence à l'activité ISIPA du Jeudi 20 Novembre à 14h00.\n\nMon nom est : ${currentGuestName}\nMa Réf. d'inscription est : ${currentDocId}\n\nJ'utilise ce message comme preuve de mon enregistrement.`
+                `Bonjour, je viens de confirmer ma présence à l'activité ISIPA du Jeudi 20 Novembre à 14h00.\n\nMon nom est : ${currentGuestName}\nMa Réf. d'inscription est : ${currentDocId}\n\nLieu (Google Maps): ${mapLink}\n\nJ'utilise ce message comme preuve de mon enregistrement.`
             );
             
             // Utilise le code pays (243) et le numéro sans le '+'
@@ -438,6 +579,9 @@
         // --- Gestion de la soumission du formulaire ---
         document.getElementById('invitationForm').addEventListener('submit', async function(event) {
             event.preventDefault();
+
+            // S'assurer que le message de statut est effacé au début de la soumission
+            statusMessage.classList.add('hidden');
 
             const form = event.target;
             const formData = {
@@ -454,7 +598,7 @@
             // Préparation de l'interface utilisateur pour la soumission
             submitButton.disabled = true;
             submitButton.textContent = "Confirmation en cours...";
-            statusMessage.classList.add('hidden');
+            
 
             try {
                 // 1. Sauvegarde des données dans Firestore (Étape principale)

@@ -106,10 +106,10 @@
                         placeholder="Ex: Jean-Paul Mvumbi">
                 </div>
 
-                <!-- Adresse E-mail -->
+                <!-- Adresse E-mail (OPTIONNEL) -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Adresse E-mail</label>
-                    <input type="email" id="email" name="email" required 
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Adresse E-mail (Optionnel)</label>
+                    <input type="email" id="email" name="email" 
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                         placeholder="Ex: votre.email@exemple.com">
                 </div>
@@ -121,6 +121,15 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                         placeholder="Ex: +243 978 415 814">
                 </div>
+
+                <!-- MODIFIÉ: Pieu ou Paroisse ou Université (Champ optionnel) -->
+                <div>
+                    <label for="universityOrPlace" class="block text-sm font-medium text-gray-700 mb-1">Pieu ou Paroisse ou Université (Optionnel)</label>
+                    <input type="text" id="universityOrPlace" name="universityOrPlace"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                        placeholder="Ex: Pieu Kinshasa Ouest, Paroisse de Kasa-Vubu, UNIKIN">
+                </div>
+                <!-- FIN MODIFIÉ CHAMP -->
 
                 <!-- Nombre d'invités (Optionnel) -->
                 <div>
@@ -205,7 +214,7 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // --- NOUVEAU: Lien Formspree pour la copie des e-mails ---
+        // --- LIEN FORMSPREE: Endpoint pour la copie des e-mails ---
         const formspreeUrl = "https://formspree.io/f/mvgwybbn"; 
         // --------------------------------------------------------
 
@@ -321,10 +330,12 @@
                 return;
             }
 
-            // Adaptez les clés pour une meilleure lisibilité dans l'e-mail reçu
+            // Mise à jour du payload pour inclure le nouveau nom de champ optionnel
             const payload = {
                 "Nom_et_Prénom": data.fullName,
-                "Email_Invité": data.email,
+                "Email_Invité": data.email || "Non_renseigné_par_l'utilisateur", // Gérer le champ optionnel
+                // CLÉ MODIFIÉE: Reflète "Pieu ou Paroisse ou Université"
+                "Pieu_ou_Paroisse_ou_Université": data.universityOrPlace || "Non renseigné", 
                 "Téléphone": data.phone,
                 "Nombre_d_invités_en_plus": data.guests,
                 "Référence_Inscription_Firestore": docId,
@@ -431,8 +442,10 @@
             const form = event.target;
             const formData = {
                 fullName: form.fullName.value.trim(),
-                email: form.email.value.trim(),
+                email: form.email.value.trim(), // Reste un champ vide si non renseigné
                 phone: form.phone.value.trim(), 
+                // Extraction du champ optionnel
+                universityOrPlace: form.universityOrPlace.value.trim(), 
                 guests: parseInt(form.guests.value, 10),
                 event: "Activité ISIPA - Jeudi 20 Novembre à 14h00",
                 locationDetails: "Centre de l'Institut de l'ISIPA (Route de la RTNC, après l'hôtel Seven, en face de la clinique D'or)"
